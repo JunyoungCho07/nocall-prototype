@@ -4,5 +4,4 @@ __pycache__/
 *.pt
 runs/
 nocall.db
-train/data/images/
-train/data/labels/
+train/data/
