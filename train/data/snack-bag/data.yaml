@@ -1,0 +1,12 @@
+names:
+- potatochip
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: potatochip
+  url: https://universe.roboflow.com/robocup2022-kogzd/potatochip/dataset/1
+  version: 1
+  workspace: robocup2022-kogzd
+test: ../test/images
+train: ../train/images
+val: ../valid/images

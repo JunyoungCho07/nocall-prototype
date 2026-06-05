@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+*.pt
+runs/
+nocall.db
+train/data/images/
+train/data/labels/

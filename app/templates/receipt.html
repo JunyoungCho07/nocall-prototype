@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NoCall 영수증</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .receipt {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 360px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo { font-size: 1.5rem; font-weight: 800; color: #00B4A6; }
+    .subtitle { font-size: 0.8rem; color: #888; margin-top: 4px; }
+    .divider {
+      border: none;
+      border-top: 1px dashed #ddd;
+      margin: 16px 0;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-align: left;
+      padding-bottom: 8px;
+    }
+    th:last-child, td:last-child { text-align: right; }
+    td { padding: 7px 0; font-size: 0.92rem; color: #333; }
+    .total-row td {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #1A1D2E;
+      padding-top: 14px;
+    }
+    .total-row td:last-child { color: #00B4A6; }
+    .session { text-align: center; font-size: 0.72rem; color: #bbb; margin-top: 16px; }
+    .pay-btn {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 15px;
+      background: #FFEB00;
+      color: #3A1D1D;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .pay-note { text-align:center; font-size:0.72rem; color:#bbb; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="header">
+      <div class="logo">NoCall</div>
+      <div class="subtitle">스마트 카트 영수증</div>
+    </div>
+    <hr class="divider">
+    <table>
+      <thead>
+        <tr>
+          <th>상품명</th>
+          <th style="text-align:center">수량</th>
+          <th>금액</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.name }}</td>
+          <td style="text-align:center">{{ item.qty }}</td>
+          <td>₩{{ "{:,}".format(item.subtotal) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td>합계</td>
+          <td></td>
+          <td>₩{{ "{:,}".format(total) }}</td>
+        </tr>
+      </tfoot>
+    </table>
+    <hr class="divider">
+    <button class="pay-btn">카카오페이로 결제하기</button>
+    <div class="pay-note">※ 데모 버전 — 실제 결제 미연동</div>
+    <div class="session">영수증 번호: {{ session_id }}</div>
+  </div>
+</body>
+</html>

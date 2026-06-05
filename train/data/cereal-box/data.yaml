@@ -1,0 +1,14 @@
+names:
+- '3'
+- cereal box
+- i
+nc: 3
+roboflow:
+  license: CC BY 4.0
+  project: cereal-box-dqeyy
+  url: https://universe.roboflow.com/deep-learners/cereal-box-dqeyy/dataset/1
+  version: 1
+  workspace: deep-learners
+test: ../test/images
+train: ../train/images
+val: ../valid/images

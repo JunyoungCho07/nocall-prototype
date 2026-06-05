@@ -1,0 +1,13 @@
+names:
+- coca-cola
+- cocacola
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: coca-cola-can-detection-n8az7
+  url: https://universe.roboflow.com/proba-yoloa/coca-cola-can-detection-n8az7/dataset/1
+  version: 1
+  workspace: proba-yoloa
+test: ../test/images
+train: ../train/images
+val: ../valid/images

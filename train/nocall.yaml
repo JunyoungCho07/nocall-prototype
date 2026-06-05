@@ -1,0 +1,11 @@
+path: /Users/jycho/Developer/StartUp101/nocall-prototype/train/data
+train: images/train
+val:   images/val
+
+nc: 5
+names:
+  0: cola
+  1: water
+  2: snack-bag
+  3: cereal-box
+  4: cup-noodle
