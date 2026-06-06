@@ -29,12 +29,12 @@ except ImportError:
 # Roboflow Universe 데이터셋 목록
 # universe.roboflow.com에서 각 데이터셋 Download → YOLOv8 → "show download code" 참고
 DATASETS = [
-    # (workspace, project, version, local_name)
-    ("proba-yoloa",    "coca-cola-can-detection-n8az7", 1, "cola"),
-    ("yolo-nznfs",     "plastic-bottles-ip5yb-uziag",   1, "water"),
-    ("robocup2022-kogzd", "potatochip",       1, "snack-bag"),
-    ("deep-learners",    "cereal-box-dqeyy", 1, "cereal-box"),
-    ("paper-cup-1cyxb",  "paper-cup-dhxoa",  1, "paper-cup"),
+    # (workspace, project, version, local_name)  — 순서 = nocall class ID
+    ("proba-yoloa",       "coca-cola-can-detection-n8az7", 1, "cola"),       # class 0
+    ("yolo-nznfs",        "plastic-bottles-ip5yb-uziag",   1, "water"),      # class 1
+    ("deep-learners",     "cereal-box-dqeyy",              1, "cereal-box"), # class 2
+    ("paper-cup-1cyxb",   "paper-cup-dhxoa",               1, "paper-cup"),  # class 3
+    ("mmmmmm",            "ramen-iqwqm",                   5, "cup-noodle"), # class 4
 ]
 
 DATA_DIR = Path(__file__).parent / "data"

@@ -26,9 +26,9 @@ except ImportError:
 QUERIES = {
     "cola":       ["코카콜라 캔", "coca cola can", "콜라 캔"],
     "water":      ["생수 페트병", "물병 투명", "water bottle plastic"],
-    "snack-bag":  ["포카칩 봉지", "potato chips bag", "snack bag chips"],
     "cereal-box": ["시리얼 박스", "cereal box", "켈로그 박스"],
     "paper-cup":  ["종이컵", "paper cup disposable", "dixie cup"],
+    "cup-noodle": ["컵라면", "cup noodle instant", "컵누들"],
 }
 
 COUNT_PER_QUERY = 35  # 쿼리 3개 × 35장 ≈ 100장/제품

@@ -30,9 +30,9 @@ except ImportError:
 CUSTOM_ONTOLOGY = {
     "cola-custom":        "coca cola can red aluminum cylindrical",
     "water-custom":       "transparent plastic water bottle mineral water",
-    "snack-bag-custom":   "potato chips snack bag foil package",
     "cereal-box-custom":  "cereal box rectangular cardboard breakfast",
     "paper-cup-custom":   "white paper cup disposable drinking cup",
+    "cup-noodle-custom":  "cup noodle instant ramen cylindrical cup",
 }
 
 # FN 최소화를 위해 낮게 설정 — FP는 LabelImg 후처리에서 제거

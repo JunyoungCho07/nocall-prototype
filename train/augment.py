@@ -33,9 +33,9 @@ AUG_PER_IMAGE = 7   # 원본 1장 → 증강 7장 추가 (총 8배)
 CUSTOM_CLASSES = [
     "cola-custom",
     "water-custom",
-    "snack-bag-custom",
     "cereal-box-custom",
     "paper-cup-custom",
+    "cup-noodle-custom",
 ]
 
 DATA_DIR = Path(__file__).parent / "data"

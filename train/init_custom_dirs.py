@@ -15,9 +15,9 @@ from pathlib import Path
 CUSTOM_CLASSES = [
     "cola-custom",
     "water-custom",
-    "snack-bag-custom",
     "cereal-box-custom",
     "paper-cup-custom",
+    "cup-noodle-custom",
 ]
 
 DATA_DIR = Path(__file__).parent / "data"

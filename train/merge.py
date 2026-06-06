@@ -15,17 +15,17 @@ from pathlib import Path
 
 # download.py의 local_name 순서 = nocall class ID
 CLASS_MAP = {
-    "cola":             0,
-    "water":            1,
-    "snack-bag":        2,
-    "cereal-box":       3,
-    "paper-cup":        4,
+    "cola":               0,
+    "water":              1,
+    "cereal-box":         2,
+    "paper-cup":          3,
+    "cup-noodle":         4,
     # 직접 촬영분 — 각 Roboflow 데이터셋과 동일 class로 병합
-    "cola-custom":      0,
-    "water-custom":     1,
-    "snack-bag-custom": 2,
-    "cereal-box-custom":3,
-    "paper-cup-custom": 4,
+    "cola-custom":        0,
+    "water-custom":       1,
+    "cereal-box-custom":  2,
+    "paper-cup-custom":   3,
+    "cup-noodle-custom":  4,
 }
 
 DATA_DIR  = Path(__file__).parent / "data"

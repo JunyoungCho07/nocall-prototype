@@ -9,9 +9,9 @@ DB_PATH = Path(__file__).parent.parent / "nocall.db"
 PRODUCTS = {
     0: {"name": "콜라",        "price": 1800},
     1: {"name": "물",          "price": 1000},
-    2: {"name": "스낵 봉지",   "price": 1500},
-    3: {"name": "시리얼(박스)", "price": 6000},
-    4: {"name": "종이컵",       "price":  500},
+    2: {"name": "시리얼(박스)", "price": 6000},
+    3: {"name": "종이컵",       "price":  500},
+    4: {"name": "컵라면",       "price": 1500},
 }
 
 
