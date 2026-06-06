@@ -12,7 +12,9 @@
 기존 모델을 fine-tune 하여 `models/nocall.pt`를 갱신한다.
 
 ## 사전 준비
-- 이 저장소를 clone 하고 의존성 설치: `uv sync`
+- **git-lfs 설치 후** 저장소 clone (모델 `models/nocall.pt`가 LFS로 저장돼 있음).
+  이미 clone 했다면 `git lfs install && git lfs pull`로 실제 모델 파일을 받을 것.
+- 의존성 설치: `uv sync`
 - **`train/nocall.yaml`의 `path:`를 본인 PC의 `train/data` 절대경로로 수정** (현재 작성자 PC 경로로 되어 있음)
 - GPU(NVIDIA) 권장. 없으면 CPU로도 되지만 느림.
 - 데모에 실제로 쓸 제품 5종 실물 준비:
