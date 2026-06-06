@@ -34,7 +34,7 @@ DATASETS = [
     ("yolo-nznfs",     "plastic-bottles-ip5yb-uziag",   1, "water"),
     ("robocup2022-kogzd", "potatochip",       1, "snack-bag"),
     ("deep-learners",    "cereal-box-dqeyy", 1, "cereal-box"),
-    ("mmmmmm",           "ramen-iqwqm",      5, "cup-noodle"),
+    ("paper-cup-1cyxb",  "paper-cup-dhxoa",  1, "paper-cup"),
 ]
 
 DATA_DIR = Path(__file__).parent / "data"
