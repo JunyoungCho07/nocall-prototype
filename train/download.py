@@ -45,7 +45,11 @@ def main():
 
     for workspace, project_name, version_num, local_name in DATASETS:
         dest = DATA_DIR / local_name
-        if dest.exists():
+        # 폴더 안에 실제 이미지가 있을 때만 건너뜀 (빈 폴더는 다시 다운로드)
+        has_images = dest.exists() and (
+            any(dest.rglob("*.jpg")) or any(dest.rglob("*.png"))
+        )
+        if has_images:
             print(f"[{local_name}] 이미 존재, 건너뜀 → {dest}")
             continue
 

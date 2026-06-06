@@ -9,7 +9,7 @@ from ultralytics import YOLO
 YAML = Path(__file__).parent / "nocall.yaml"
 EPOCHS = 80
 IMGSZ = 640
-BATCH = 16  # M5 기준; VRAM 부족 시 8로 낮출 것
+BATCH = 8  # RTX 4050 6GB 기준 (640px yolov8s에서 16은 OOM 위험)
 
 
 def main():
@@ -31,8 +31,8 @@ def main():
         hsv_s=0.5,
         hsv_v=0.3,
     )
-    # best.pt → models/ 에 복사
-    best = Path("runs/train/nocall/weights/best.pt")
+    # best.pt → models/ 에 복사 (ultralytics 실제 저장 경로 사용)
+    best = Path(model.trainer.save_dir) / "weights" / "best.pt"
     dest = Path(__file__).parent.parent / "models" / "nocall.pt"
     dest.parent.mkdir(exist_ok=True)
     import shutil

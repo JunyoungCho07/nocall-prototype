@@ -77,9 +77,8 @@ def merge():
                 new_name = f"{local_name}_{img_path.name}"
                 shutil.copy(img_path, img_out / new_name)
 
-                # 라벨 재매핑
-                lbl_path = img_path.parent.parent.parent / "labels" / \
-                           img_path.parent.name / (img_path.stem + ".txt")
+                # 라벨 재매핑 (구조: <split>/images/x.jpg ↔ <split>/labels/x.txt)
+                lbl_path = img_path.parent.parent / "labels" / (img_path.stem + ".txt")
                 if lbl_path.exists():
                     remap_label(lbl_path, lbl_out / f"{local_name}_{img_path.stem}.txt", class_id)
 

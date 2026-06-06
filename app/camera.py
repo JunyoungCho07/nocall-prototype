@@ -10,7 +10,7 @@ FALLBACK_MODEL = "yolov8n.pt"  # 학습 전 테스트용
 
 
 class CameraProcessor:
-    def __init__(self, cart: CartManager, camera_index: int = 0, conf: float = 0.45):
+    def __init__(self, cart: CartManager, camera_index: int = 0, conf: float = 0.30):
         self.cart = cart
         self.camera_index = camera_index
         self.conf = conf
@@ -48,18 +48,19 @@ class CameraProcessor:
 
             tracks = []
             if results[0].boxes.id is not None:
-                for box, cls, tid in zip(
+                for box, cls, conf, tid in zip(
                     results[0].boxes.xyxy.cpu().numpy(),
                     results[0].boxes.cls.cpu().numpy(),
+                    results[0].boxes.conf.cpu().numpy(),
                     results[0].boxes.id.cpu().numpy(),
                 ):
                     x1, y1, x2, y2 = box
                     cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
                     tracks.append((int(tid), int(cls), cx, cy))
 
-                    # bounding box 그리기
+                    # bounding box + 클래스명·신뢰도 표시 (진단/디버깅용)
                     cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 200, 180), 2)
-                    label = f"ID{int(tid)}"
+                    label = f"{self.model.names[int(cls)]} {conf*100:.0f}% ID{int(tid)}"
                     cv2.putText(frame, label, (int(x1), int(y1) - 6),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 200, 180), 2)
 
