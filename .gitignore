@@ -2,6 +2,7 @@
 .venv/
 __pycache__/
 *.pt
+!models/nocall.pt
 runs/
 nocall.db
 train/data/
