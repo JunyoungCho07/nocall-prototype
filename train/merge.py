@@ -19,7 +19,7 @@ CLASS_MAP = {
     "water":      1,
     "snack-bag":  2,
     "cereal-box": 3,
-    "cup-noodle": 4,
+    "paper-cup":  4,
 }
 
 DATA_DIR  = Path(__file__).parent / "data"
