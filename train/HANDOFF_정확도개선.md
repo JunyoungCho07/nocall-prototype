@@ -33,6 +33,8 @@ uv run python train/capture.py
 - 저장: `train/data/webcam/images/<class>/`
 
 ### 2단계 — 라벨링
+> 자동 라벨링(Grounding DINO)을 쓰려면 라벨링 전용 의존성을 먼저 설치:
+> `uv sync --extra label`  (학습/앱엔 불필요한 무거운 패키지라 분리돼 있음)
 ```
 uv run python train/label_tool.py
 ```

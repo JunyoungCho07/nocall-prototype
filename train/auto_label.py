@@ -15,6 +15,7 @@ Grounding DINO + autodistill로 커스텀 이미지 자동 라벨링.
   - Mac MPS / CPU에서도 동작
 """
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -23,7 +24,9 @@ try:
     from autodistill.detection import CaptionOntology
     from autodistill_grounding_dino import GroundingDINO
 except ImportError:
-    subprocess.run(["uv", "add", "autodistill", "autodistill-grounding-dino"], check=True)
+    # 라벨링 전용 의존성은 optional 그룹 'label'로 분리돼 있음 (메인 deps 아님)
+    print("[label] 라벨링 의존성 설치 중... (uv sync --extra label)")
+    subprocess.run(["uv", "sync", "--extra", "label"], check=True)
     from autodistill.detection import CaptionOntology
     from autodistill_grounding_dino import GroundingDINO
 
@@ -87,9 +90,32 @@ def label_class(cls_name: str, prompt: str):
                 output_folder=str(labels_dir),
             )
 
+    # autodistill은 output_folder 안에 train/valid 데이터셋 구조로 출력한다.
+    # merge.py / LabelImg가 기대하는 평면 구조(<cls>/train/labels/*.txt)로 정리.
+    _flatten_autodistill_output(labels_dir)
+
     labeled = len([f for f in labels_dir.glob("*.txt") if f.name != "classes.txt"])
     print(f"[{cls_name}] 라벨 {labeled}/{len(imgs)}장 생성 완료")
     return True
+
+
+def _flatten_autodistill_output(labels_dir: Path):
+    """autodistill의 중첩 데이터셋 출력을 평면 .txt 구조로 정리."""
+    for sub in ["train", "valid", "test"]:
+        nested = labels_dir / sub / "labels"
+        if nested.exists():
+            for txt in nested.glob("*.txt"):
+                dst = labels_dir / txt.name
+                if dst.exists():
+                    dst.unlink()
+                shutil.move(str(txt), str(dst))
+    # 잔여물 제거 (원본 이미지는 images_dir에 그대로 있음)
+    for junk in ["train", "valid", "test", "images", "annotations", "data.yaml"]:
+        p = labels_dir / junk
+        if p.is_dir():
+            shutil.rmtree(p, ignore_errors=True)
+        elif p.exists():
+            p.unlink()
 
 
 def review_with_labelimg(cls_name: str):

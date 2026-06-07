@@ -7,4 +7,6 @@ runs/
 nocall.db
 train/data/*
 !train/data/*-custom
+# 증강 파생물 — augment.py로 재생성 가능하므로 커밋 제외 (원본·라벨만 추적)
+train/data/*-custom/**/aug_*
 *.log

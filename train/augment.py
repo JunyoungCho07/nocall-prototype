@@ -46,12 +46,17 @@ TRANSFORM = A.Compose(
         A.RandomBrightnessContrast(brightness_limit=0.3, contrast_limit=0.3, p=0.8),
         A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=30, val_shift_limit=20, p=0.6),
         A.GaussianBlur(blur_limit=(3, 5), p=0.3),
-        A.GaussNoise(var_limit=(10, 50), p=0.3),
+        A.GaussNoise(std_range=(0.01, 0.05), p=0.3),   # albumentations 2.x: var_limit → std_range
         A.Rotate(limit=15, p=0.7),
         A.Perspective(scale=(0.02, 0.08), p=0.4),
         A.HorizontalFlip(p=0.5),
         A.RandomScale(scale_limit=0.2, p=0.5),
-        A.Cutout(num_holes=2, max_h_size=20, max_w_size=20, p=0.3),
+        A.CoarseDropout(                                 # albumentations 2.x: Cutout 대체
+            num_holes_range=(1, 2),
+            hole_height_range=(8, 20),
+            hole_width_range=(8, 20),
+            p=0.3,
+        ),
     ],
     bbox_params=A.BboxParams(
         format="yolo",

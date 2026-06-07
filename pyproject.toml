@@ -17,6 +17,17 @@ dependencies = [
     "uvicorn[standard]>=0.49.0",
 ]
 
+[project.optional-dependencies]
+# 커스텀 이미지 자동 라벨링 전용 (train/auto_label.py). 학습/앱 실행엔 불필요.
+# 설치:  uv sync --extra label
+# transformers는 GroundingDINO 호환을 위해 4.x 고정, scikit-learn은 DLL 차단 회피용 핀.
+label = [
+    "autodistill>=0.1.29",
+    "autodistill-grounding-dino>=0.1.4",
+    "scikit-learn==1.5.2",
+    "transformers==4.44.2",
+]
+
 # RTX 4070 GPU 학습용 CUDA 12.8 빌드 (Windows/Linux 전용)
 [[tool.uv.index]]
 name = "pytorch-cu128"
