@@ -1,5 +1,6 @@
 import asyncio
 import io
+import os
 import socket
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -7,15 +8,21 @@ from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from pathlib import Path
 import qrcode
+from dotenv import load_dotenv
 
 from .cart import CartManager, init_db
 from .camera import CameraProcessor
 
+load_dotenv()
+
 app = FastAPI(title="NoCall Prototype")
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
+# .env 의 CAMERA_INDEX 로 카메라 선택 (없으면 0번=내장). 외부 웹캠은 보통 1번.
+CAMERA_INDEX = int(os.getenv("CAMERA_INDEX", "0"))
+
 cart = CartManager()
-cam = CameraProcessor(cart=cart)
+cam = CameraProcessor(cart=cart, camera_index=CAMERA_INDEX)
 
 
 @app.on_event("startup")
