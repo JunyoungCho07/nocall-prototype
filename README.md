@@ -2,17 +2,17 @@
 
 > "셀프 계산대인데, 진짜로 셀프로 끝낸다"
 
-카트 손잡이에 카메라를 부착하여 물건을 넣고 꺼낼 때 자동으로 인식하는 컴퓨터 비전 프로토타입입니다.
+계산대 위에 상품을 한 겹으로 펼쳐 놓으면 카메라가 전체를 비춰 자동으로 인식·집계하는 컴퓨터 비전 프로토타입입니다.
 
 ## 동작 원리
 
 ```
-웹캠 (-45°) → YOLOv8 detect → ByteTrack → Line Crossing → 카트 업데이트 → QR 영수증
+웹캠 (top-down) → YOLOv8 detect → 클래스별 개수 집계 → 프레임 평활화 → 카트 확정 → QR 영수증
 ```
 
-- 물건이 카메라 앞 **가상 라인을 위→아래** 통과 시 카트에 추가
-- **아래→위** 통과 시 카트에서 제거
-- ByteTrack으로 tracking ID 부여 → 중복 카운팅 없음
+- 계산대 위에 상품을 **서로 겹치지 않게 한 겹으로** 펼쳐 놓는다
+- 매 프레임 **보이는 클래스별 개수**를 그대로 장바구니로 집계
+- 최근 N프레임(기본 15, 약 1초)의 **중앙값으로 평활화** → 감지 떨림 방지
 
 ## 인식 제품 (5종)
 
@@ -71,8 +71,8 @@ uv run python run.py
 nocall-prototype/
 ├── app/
 │   ├── main.py          # FastAPI 서버 (stream / cart / checkout / receipt)
-│   ├── cart.py          # CartManager + Line Crossing Logic
-│   ├── camera.py        # OpenCV + YOLOv8 + ByteTrack
+│   ├── cart.py          # CartManager + 클래스별 개수 집계·평활화
+│   ├── camera.py        # OpenCV + YOLOv8 detect
 │   └── templates/
 │       └── receipt.html # 영수증 페이지
 ├── train/

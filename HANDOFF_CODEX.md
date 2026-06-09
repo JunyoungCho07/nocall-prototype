@@ -15,7 +15,7 @@
 ---
 
 ## 1. 프로젝트 개요
-- **무엇**: YOLOv8 기반 5-class 객체탐지 + ByteTrack 추적으로 "스마트카트"(스캔라인 통과 → 장바구니 가감) 데모. FastAPI 웹앱.
+- **무엇**: YOLOv8 기반 5-class 객체탐지로 "스마트 계산대"(계산대 위 한 겹으로 펼친 상품을 클래스별 개수로 집계 → 영수증) 데모. FastAPI 웹앱.
 - **클래스 (ID 고정)**: `0 cola · 1 water · 2 cereal-box · 3 paper-cup · 4 cup-noodle`
   - 이 매핑은 `train/nocall.yaml`, `train/merge.py`, `app/cart.py` 에서 **반드시 일치**해야 함. 변경 시 세 곳 동시 수정.
 - **모델 파일**: `models/nocall.pt` (약 21MB, **Git LFS** 로 추적). 2단계 학습 결과.
@@ -26,8 +26,8 @@
 run.py                      # 앱 진입점 (uvicorn :8000)
 app/
   main.py                   # FastAPI: / , /stream(MJPEG), /cart, /checkout, /receipt
-  camera.py                 # 웹캠 + YOLO.track + 박스/스캔라인 오버레이 (conf=0.30)
-  cart.py                   # PRODUCTS(클래스→이름·가격), 스캔라인 통과 판정
+  camera.py                 # 웹캠 + YOLO detect + 박스 오버레이, 프레임별 개수 집계 (conf=0.30)
+  cart.py                   # PRODUCTS(클래스→이름·가격), 개수 집계 + 최근 N프레임 중앙값 평활화
 models/nocall.pt            # 학습된 모델 (LFS)
 train/
   nocall.yaml               # 데이터셋 정의. path: PLACEHOLDER (런타임 치환)
@@ -72,7 +72,7 @@ uv run python run.py
 # 브라우저: http://localhost:8000
 ```
 - 5개 제품을 비춰 박스에 `클래스명 + %` 가 정확히(70%+) 뜨는지.
-- 빨간 스캔라인 **위→아래** 통과 = 장바구니 추가, **아래→위** = 제거.
+- 계산대 위에 **서로 안 겹치게 한 겹으로** 펼친 상품이 클래스별 개수로 장바구니에 집계되는지. (잠깐 깜빡여도 약 1초 평활화로 유지)
 - 헤드리스/원격 환경이면 웹캠 불가 → 4-1만 수행하고 그 사실을 보고.
 
 ## 5. 알려진 함정 (이번 세션에서 확인됨 — 재발견 불필요)
@@ -110,7 +110,7 @@ uv run python train/finetune.py              # → models/nocall.pt (최종)
 ```
 [환경] OS / GPU(cuda·mps·cpu) / 모델 크기(MB, LFS 정상여부)
 [수치검증] 클래스별 PASS/CHECK 표 + 검출0 수 + 종합 PASS/CHECK
-[실동작] (가능 시) 5클래스 인식·스캔라인 가감 여부 / (웹캠 불가 시) 사유
+[실동작] (가능 시) 5클래스 인식·개수 집계 정확 여부 / (웹캠 불가 시) 사유
 [이슈] 발생한 함정과 처리
 [결론] 검증 통과 여부 + 권장 후속조치
 ```

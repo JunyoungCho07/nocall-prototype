@@ -14,7 +14,7 @@ from .camera import CameraProcessor
 app = FastAPI(title="NoCall Prototype")
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-cart = CartManager(line_y_ratio=0.5)
+cart = CartManager()
 cam = CameraProcessor(cart=cart)
 
 
@@ -98,8 +98,9 @@ async def receipt(request: Request, session_id: str):
         raise HTTPException(status_code=404, detail="영수증을 찾을 수 없습니다")
     total = sum(i["subtotal"] for i in items)
     return templates.TemplateResponse(
+        request,
         "receipt.html",
-        {"request": request, "items": items, "total": total, "session_id": session_id},
+        {"items": items, "total": total, "session_id": session_id},
     )
 
 

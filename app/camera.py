@@ -1,6 +1,6 @@
 import threading
+from collections import defaultdict
 import cv2
-import numpy as np
 from ultralytics import YOLO
 from pathlib import Path
 from .cart import CartManager
@@ -38,40 +38,30 @@ class CameraProcessor:
             if not ok:
                 continue
 
-            frame_h, frame_w = frame.shape[:2]
-            line_y = int(frame_h * self.cart.line_y_ratio)
+            # YOLO 일반 추론 — 추적/라인 없이, 이번 프레임에 '보이는' 상품을 센다
+            results = self.model(frame, conf=self.conf, verbose=False)
 
-            # YOLO + ByteTrack
-            results = self.model.track(
-                frame, persist=True, conf=self.conf, tracker="bytetrack.yaml", verbose=False
-            )
-
-            tracks = []
-            if results[0].boxes.id is not None:
-                for box, cls, conf, tid in zip(
-                    results[0].boxes.xyxy.cpu().numpy(),
-                    results[0].boxes.cls.cpu().numpy(),
-                    results[0].boxes.conf.cpu().numpy(),
-                    results[0].boxes.id.cpu().numpy(),
+            counts: dict[int, int] = defaultdict(int)
+            boxes = results[0].boxes
+            if boxes is not None and len(boxes):
+                for box, cls, conf in zip(
+                    boxes.xyxy.cpu().numpy(),
+                    boxes.cls.cpu().numpy(),
+                    boxes.conf.cpu().numpy(),
                 ):
-                    x1, y1, x2, y2 = box
-                    cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
-                    tracks.append((int(tid), int(cls), cx, cy))
+                    cid = int(cls)
+                    counts[cid] += 1
 
-                    # bounding box + 클래스명·신뢰도 표시 (진단/디버깅용)
+                    # bounding box + 클래스명·신뢰도 표시
+                    x1, y1, x2, y2 = box
                     cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 200, 180), 2)
-                    label = f"{self.model.names[int(cls)]} {conf*100:.0f}% ID{int(tid)}"
+                    label = f"{self.model.names[cid]} {conf * 100:.0f}%"
                     cv2.putText(frame, label, (int(x1), int(y1) - 6),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 200, 180), 2)
 
-            self.cart.process_tracks(tracks, frame_h)
+            self.cart.update_counts(counts)
 
-            # 가상 라인 시각화
-            cv2.line(frame, (0, line_y), (frame_w, line_y), (0, 80, 255), 2)
-            cv2.putText(frame, "SCAN LINE", (10, line_y - 8),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 80, 255), 2)
-
-            # 카트 현황 오버레이
+            # 카트 현황 오버레이 (평활화 후 확정 수량)
             items = self.cart.get_cart()
             overlay_lines = [f"{i['name']} x{i['qty']}" for i in items]
             for idx, text in enumerate(overlay_lines):

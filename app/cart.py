@@ -1,7 +1,9 @@
 import sqlite3
 import threading
 import uuid
-from collections import defaultdict
+import json
+from collections import deque
+from statistics import median
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent.parent / "nocall.db"
@@ -29,59 +31,46 @@ def init_db():
 
 
 class CartManager:
-    def __init__(self, line_y_ratio: float = 0.5):
+    """
+    계산대 위에 '한 겹'으로 펼쳐 놓은 상품을 카메라가 전체로 비추는 방식.
+    매 프레임 감지된 {class_id: count}를 받아, 최근 N프레임의 중앙값으로
+    안정화한 개수를 장바구니로 확정한다 (프레임별 떨림 방지).
+    """
+
+    def __init__(self, window: int = 15):
         self._lock = threading.Lock()
-        # {class_id: quantity}
-        self._cart: dict[int, int] = defaultdict(int)
-        # {track_id: last_y}  — ByteTrack ID → 직전 프레임 Y 중심
-        self._track_prev_y: dict[int, float] = {}
-        # track_id → 이미 라인 교차 처리된 ID (방향별)
-        self._crossed: set[tuple[int, str]] = set()
-        self.line_y_ratio = line_y_ratio  # 프레임 높이 대비 라인 위치
+        # 최근 N프레임의 {class_id: count} 스냅샷
+        self._frames: deque[dict[int, int]] = deque(maxlen=window)
+        # 평활화로 확정된 장바구니 {class_id: qty}
+        self._cart: dict[int, int] = {}
 
-    def process_tracks(self, tracks, frame_h: int):
-        """
-        tracks: list of (track_id, class_id, cx, cy)
-        cy가 line_y를 위→아래 교차 → add
-        아래→위 교차 → remove
-        """
-        line_y = frame_h * self.line_y_ratio
-        current_ids = set()
+    def update_counts(self, counts: dict[int, int]):
+        """매 프레임 호출. counts = {class_id: 이번 프레임에 보인 개수}"""
+        with self._lock:
+            self._frames.append(dict(counts))
+            self._recompute_locked()
 
-        for track_id, class_id, _cx, cy in tracks:
-            current_ids.add(track_id)
-            prev_y = self._track_prev_y.get(track_id)
-
-            if prev_y is not None:
-                crossed_down = prev_y < line_y <= cy
-                crossed_up   = prev_y > line_y >= cy
-
-                if crossed_down and (track_id, "down") not in self._crossed:
-                    self._crossed.add((track_id, "down"))
-                    with self._lock:
-                        self._cart[class_id] += 1
-
-                elif crossed_up and (track_id, "up") not in self._crossed:
-                    self._crossed.add((track_id, "up"))
-                    with self._lock:
-                        qty = self._cart.get(class_id, 0)
-                        if qty > 0:
-                            self._cart[class_id] = qty - 1
-
-            self._track_prev_y[track_id] = cy
-
-        # 사라진 track_id 정리
-        gone = set(self._track_prev_y) - current_ids
-        for tid in gone:
-            del self._track_prev_y[tid]
-            self._crossed.discard((tid, "down"))
-            self._crossed.discard((tid, "up"))
+    def _recompute_locked(self):
+        """self._frames 중앙값으로 _cart 재계산 (반드시 lock 안에서 호출)."""
+        if not self._frames:
+            self._cart = {}
+            return
+        all_classes: set[int] = set()
+        for f in self._frames:
+            all_classes.update(f)
+        stable: dict[int, int] = {}
+        for cid in all_classes:
+            vals = [f.get(cid, 0) for f in self._frames]
+            qty = int(median(vals))
+            if qty > 0:
+                stable[cid] = qty
+        self._cart = stable
 
     def get_cart(self) -> list[dict]:
         with self._lock:
             items = []
             for class_id, qty in self._cart.items():
-                if qty > 0:
+                if qty > 0 and class_id in PRODUCTS:
                     p = PRODUCTS[class_id]
                     items.append({
                         "class_id": class_id,
@@ -90,6 +79,7 @@ class CartManager:
                         "price":    p["price"],
                         "subtotal": p["price"] * qty,
                     })
+            items.sort(key=lambda i: i["class_id"])
             return items
 
     def get_total(self) -> int:
@@ -97,12 +87,10 @@ class CartManager:
 
     def reset(self):
         with self._lock:
-            self._cart.clear()
-            self._track_prev_y.clear()
-            self._crossed.clear()
+            self._frames.clear()
+            self._cart = {}
 
     def save_receipt(self) -> str:
-        import json
         session_id = uuid.uuid4().hex[:8]
         items = self.get_cart()
         con = sqlite3.connect(DB_PATH)
@@ -115,7 +103,6 @@ class CartManager:
         return session_id
 
     def load_receipt(self, session_id: str) -> list[dict] | None:
-        import json
         con = sqlite3.connect(DB_PATH)
         row = con.execute(
             "SELECT items_json FROM receipts WHERE id = ?", (session_id,)
